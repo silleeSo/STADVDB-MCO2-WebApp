@@ -1,6 +1,7 @@
 import React, { useState } from 'react';  // <-- Add useState here
 import QueryForm from '../components/QueryForm';
 import TransactionsLog from '../components/TransactionsLog';
+import SearchBar from '../components/SearchBar';
 import '../styles/App.css'; 
 
 
@@ -9,10 +10,12 @@ const SearchPage = () => {
 
   return (
     <div>    
-      <h2>Welcome to My Website!</h2>
-      <p>This is the SEARCH.</p>
-      <QueryForm setTransactions={setTransactions} />
+      <h1>Search Records</h1>
+      <br></br>
+      <SearchBar/>
+      <br></br>
       <TransactionsLog transactions={transactions} />
+      
     </div>
   );
 };
