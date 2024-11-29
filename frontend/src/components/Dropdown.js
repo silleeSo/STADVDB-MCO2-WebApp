@@ -1,25 +1,34 @@
-import React from 'react';
+import React, { useState } from 'react';
 
-const Dropdown = ({ options, title }) => {
+const Dropdown = ({ options, title, onSelect }) => {
+  const [selectedOption, setSelectedOption] = useState(title || 'Select Node');
+
+  const handleOptionClick = (option) => {
+    setSelectedOption(option.label); // Update the displayed option
+    onSelect(option.value); // Pass the selected node value to the parent component
+  };
+
   return (
-    <div className="dropdown">
+    <div className="btn-group">
+      <button type="button" className="btn btn-primary">{selectedOption}</button>
       <button
-        className="btn btn-default dropdown-toggle"
         type="button"
-        id="dropdownMenu1"
+        className="btn btn-primary dropdown-toggle"
         data-bs-toggle="dropdown"
-        aria-haspopup="true"
-        aria-expanded="true"
+        aria-expanded="false"
       >
-        {title}
         <span className="caret"></span>
+        <span className="sr-only">Toggle Dropdown</span>
       </button>
-      <ul className="dropdown-menu" aria-labelledby="dropdownMenu1">
+      <ul className="dropdown-menu">
         {options.map((option, index) => (
           <li key={index}>
-            <a className="dropdown-item" href={option.href}>
+            <button
+              className="dropdown-item"
+              onClick={() => handleOptionClick(option)}
+            >
               {option.label}
-            </a>
+            </button>
           </li>
         ))}
       </ul>

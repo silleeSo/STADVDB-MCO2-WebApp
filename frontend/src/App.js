@@ -8,6 +8,7 @@ import DeletePage from './pages/DeletePage'; // Ensure correct import path
 import UpdatePage from './pages/UpdatePage'; // Ensure correct import path
 import SearchPage from './pages/SearchPage'; // Ensure correct import path
 import ReportPage from './pages/ReportPage'; // Ensure correct import path
+import Report1 from './pages/Report1';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 
@@ -21,6 +22,7 @@ function App() {
         <Route path="/update" element={<UpdatePage />} />
         <Route path="/search" element={<SearchPage />} />
         <Route path="/report" element={<ReportPage />} />
+        <Route path="/rp1" element={<Report1 />} />
       </Routes>
     </Router>
   );

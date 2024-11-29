@@ -2,12 +2,12 @@
 body {
   font-family: 'Arial', sans-serif;
   margin: 0;
-  padding: 0;
+  padding: 40px;
   background-color: #f4f4f4;
   color: #333;
   display: flex; /* Use flexbox for centering */
   justify-content: center; /* Center horizontally */
-  align-items: center; /* Center vertically */
+  /*align-items:normal;  Center vertically */
   height: 100vh; /* Full viewport height */
   text-align: center; /* Center text within elements */
 }
@@ -73,12 +73,5 @@ input, select {
 
 .transaction:last-child {
   border-bottom: none;
-}
-
-
-.center-block {
-  display: block;
-  margin-left: auto;
-  margin-right: auto;
 }
 
