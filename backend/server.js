@@ -14,19 +14,26 @@ const db = mysql.createConnection({
   host: 'localhost', // Adjust based on your MySQL server
   user: 'root', // Your MySQL username
   password: '6761', // Your MySQL password
-  database: 'test_db' // Your MySQL database name
+  database: 'mco2_games_master',    // Your MySQL database name
+  port: 3306                        // Set port to 80 if MySQL is listening on port 80   
 });
 
-// Check connection
-db.connect(err => {
-  if (err) throw err;
-  console.log('Connected to MySQL database!');
+// Establish a connection
+db.connect((err) => {
+  if (err) {
+    console.error('Error connecting to MySQL:', err.stack);
+    return;
+  }
+  console.log('Connected to MySQL on port 3306 as id ' + db.threadId);
 });
 
-// Fetch data from MySQL
+// Example route to fetch data
 app.get('/data', (req, res) => {
-  db.query('SELECT * FROM my_table', (err, results) => {
-    if (err) throw err;
+  db.query('SELECT * FROM games', (err, results) => {
+    if (err) {
+      console.error('Error fetching data:', err);
+      return res.status(500).send('Error fetching data');
+    }
     res.json(results);
   });
 });
@@ -37,6 +44,18 @@ app.delete('/data/:id', (req, res) => {
   db.query('DELETE FROM my_table WHERE id = ?', [id], (err, result) => {
     if (err) throw err;
     res.json({ message: 'Data deleted successfully' });
+  });
+});
+
+// Route to execute a query
+app.post('/query', (req, res) => {
+  const { query } = req.body;
+  db.query(query, (err, results) => {
+    if (err) {
+      console.error('Error executing query:', err);
+      return res.status(500).json({ error: 'Failed to execute query' });
+    }
+    res.json({ transactions: results }); // Send back the result as "transactions"
   });
 });
 

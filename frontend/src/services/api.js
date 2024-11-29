@@ -1,16 +1,14 @@
+import axios from 'axios';
+
 export const executeQuery = async (query) => {
-    try {
-      const response = await fetch('http://localhost:5000/query', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ query }),
-      });
-      return await response.json();
-    } catch (error) {
-      console.error('Error executing query:', error);
-      return { transactions: [] };
+  try {
+    const response = await axios.post('http://localhost:5000/query', { query });
+    return response.data;
+  } catch (error) {
+    if (error.code === 'ERR_NETWORK') {
+      console.error('Network error: Unable to connect to the server');
+      alert('Unable to connect to the server. Please try again later.');
     }
-  };
-  
+    throw error; // Re-throw the error if necessary
+  }
+};

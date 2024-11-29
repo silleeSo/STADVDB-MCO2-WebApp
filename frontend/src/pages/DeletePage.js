@@ -7,7 +7,7 @@ const DeletePage = () => {
   const [transactions, setTransactions] = useState([]);
 
   const fetchData = async () => {
-    const query = 'SELECT * FROM users';
+    const query = 'SELECT * FROM games LIMIT 100';
     const result = await executeQuery(query);
     setTransactions(result.transactions); // Store the fetched data in state
   };
