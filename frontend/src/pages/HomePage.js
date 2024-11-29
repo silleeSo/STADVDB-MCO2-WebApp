@@ -6,7 +6,7 @@ function HomePage() {
     <div>
       <h1>Welcome to the Steam Games Distributed Database System!</h1>
       <p class="text-center">What would you like to do today?</p>
-      
+      <br></br>
       {/* Create buttons for navigation */}
       <p class="text-center">
         <Link to="/add">
