@@ -1,0 +1,13 @@
+.query-form {
+    margin-bottom: 20px;
+  }
+  
+  .query-form form {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .query-form button {
+    align-self: flex-start;
+  }
+  
