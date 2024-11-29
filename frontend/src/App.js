@@ -7,6 +7,7 @@ import AddPage from './pages/AddPage'; // Ensure correct import path
 import DeletePage from './pages/DeletePage'; // Ensure correct import path
 import UpdatePage from './pages/UpdatePage'; // Ensure correct import path
 import SearchPage from './pages/SearchPage'; // Ensure correct import path
+import ReportPage from './pages/ReportPage'; // Ensure correct import path
 
 function App() {
   return (
@@ -17,6 +18,7 @@ function App() {
         <Route path="/delete" element={<DeletePage />} />
         <Route path="/update" element={<UpdatePage />} />
         <Route path="/search" element={<SearchPage />} />
+        <Route path="/report" element={<ReportPage />} />
       </Routes>
     </Router>
   );

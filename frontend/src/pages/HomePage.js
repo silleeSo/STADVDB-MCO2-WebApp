@@ -24,6 +24,14 @@ function HomePage() {
         <button>Search for records</button>
       </Link>
       <br />
+      <Link to="/report">
+        <button>Report Directory</button>
+      </Link>
+      <br />
+
+  
+      
+
     </div>
   );
 }
