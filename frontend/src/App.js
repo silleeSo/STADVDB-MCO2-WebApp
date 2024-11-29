@@ -8,6 +8,8 @@ import DeletePage from './pages/DeletePage'; // Ensure correct import path
 import UpdatePage from './pages/UpdatePage'; // Ensure correct import path
 import SearchPage from './pages/SearchPage'; // Ensure correct import path
 import ReportPage from './pages/ReportPage'; // Ensure correct import path
+import 'bootstrap/dist/css/bootstrap.min.css';
+import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 
 function App() {
   return (
