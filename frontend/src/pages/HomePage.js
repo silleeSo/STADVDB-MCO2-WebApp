@@ -17,17 +17,11 @@ function HomePage() {
 
       <p class="text-center">
         <Link to="/delete">
-        <button type="button" class="btn btn-primary btn-lg">Delete Records</button>
+        <button type="button" class="btn btn-primary btn-lg">Delete or Update Records</button>
         </Link>
         <br />
       </p>
       
-      <p class="text-center">
-        <Link to="/update">
-        <button type="button" class="btn btn-primary btn-lg">Update Records</button>
-        </Link>
-        <br />
-      </p>
 
       <p class="text-center">
         <Link to="/search">

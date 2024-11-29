@@ -38,14 +38,32 @@ app.get('/data', (req, res) => {
   });
 });
 
-// Delete data from MySQL
+/*
 app.delete('/data/:id', (req, res) => {
   const { id } = req.params;
-  db.query('DELETE FROM my_table WHERE id = ?', [id], (err, result) => {
-    if (err) throw err;
+  
+  // Make sure 'id' is a valid number
+  if (!id || isNaN(id)) {
+    return res.status(400).json({ error: 'Invalid ID' });
+  }
+
+  // Perform the database query
+  
+  db.query('DELETE FROM games WHERE id = ?', [id], (err, result) => {
+    if (err) {
+      console.error('Database error:', err); // Log the error for debugging
+      return res.status(500).json({ error: 'Failed to delete record' });
+    }
+    
+    // If no rows are deleted, handle the case where the ID was not found
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ error: 'Record not found' });
+    }
+
     res.json({ message: 'Data deleted successfully' });
   });
-});
+});*/
+
 
 // Route to execute a query
 app.post('/query', (req, res) => {
