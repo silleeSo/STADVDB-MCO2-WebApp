@@ -1,10 +1,12 @@
-import React from 'react';
+import React, { useState } from 'react';
+import UserInput from '../components/UserInput';
+import AddPanel from '../components/AddPanel';
 
 const AddPage = () => {
+ 
   return (
     <div>
-      <h2>Welcome to My Website!</h2>
-      <p>This is the ADD.</p>
+          <AddPanel />
     </div>
   );
 };
