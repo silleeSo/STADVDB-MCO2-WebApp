@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { executeQuery } from '../services/api';
+import '../styles/QueryForm.css'; 
 
 function QueryForm({ setTransactions }) {
   const [query, setQuery] = useState('');
@@ -13,7 +14,6 @@ function QueryForm({ setTransactions }) {
   return (
     <form onSubmit={handleQuerySubmit}>
       <label>
-        Search
         <input 
           type="text" 
           value={query} 

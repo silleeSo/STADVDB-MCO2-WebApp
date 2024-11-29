@@ -1,5 +1,5 @@
 import React from 'react';
-import './TransactionsLog.css'; 
+import '../styles/TransactionsLog.css'; 
 
 function TransactionsLog({ transactions }) {
   return (

@@ -5,6 +5,11 @@ body {
   padding: 0;
   background-color: #f4f4f4;
   color: #333;
+  display: flex; /* Use flexbox for centering */
+  justify-content: center; /* Center horizontally */
+  align-items: center; /* Center vertically */
+  height: 100vh; /* Full viewport height */
+  text-align: center; /* Center text within elements */
 }
 
 .App {

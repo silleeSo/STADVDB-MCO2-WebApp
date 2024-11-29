@@ -1,18 +1,25 @@
-import React, { useState } from 'react';
-import QueryForm from './components/QueryForm';
-import TransactionsLog from './components/TransactionsLog';
-import './App.css';
+// App.js
+
+import React from 'react';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import HomePage from './pages/HomePage'; // Ensure correct import path
+import AddPage from './pages/AddPage'; // Ensure correct import path
+import DeletePage from './pages/DeletePage'; // Ensure correct import path
+import UpdatePage from './pages/UpdatePage'; // Ensure correct import path
+import SearchPage from './pages/SearchPage'; // Ensure correct import path
 
 function App() {
-  const [transactions, setTransactions] = useState([]);
-
   return (
-    <div className="App">
-      <h1>Distributed Database System</h1>
-      <QueryForm setTransactions={setTransactions} />
-      <TransactionsLog transactions={transactions} />
-    </div>
+    <Router>
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/add" element={<AddPage />} />
+        <Route path="/delete" element={<DeletePage />} />
+        <Route path="/update" element={<UpdatePage />} />
+        <Route path="/search" element={<SearchPage />} />
+      </Routes>
+    </Router>
   );
 }
 
-export default App;
+export default App; // Ensure default export is here
