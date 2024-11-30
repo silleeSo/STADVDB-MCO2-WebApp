@@ -78,24 +78,18 @@ function createDbConnection(nodeConfig) {
 // Periodic health check that runs every minute to detect failed nodes and switch active node
 cron.schedule('* * * * *', async () => {
   console.log('Running periodic health checks...');
-
-  // Skip health checks if manual node switching is in progress
-  if (failedNodes[activeNodeConfig] !== true) {
-    // Check each node's health by pinging the database
-    for (const [nodeName, nodeConfig] of Object.entries(dbNodes)) {
-      const connection = createDbConnection(nodeConfig);
-
-      connection.ping((err) => {
-        if (err) {
-          console.error(`${nodeName} is down: ${err.message}`);
-          failedNodes[nodeName] = true; // Mark node as failed
-        } else {
-          console.log(`${nodeName} is healthy`);
-          failedNodes[nodeName] = false; // Mark node as healthy
-        }
-        connection.end();
-      });
-    }
+  for (const [nodeName, nodeConfig] of Object.entries(dbNodes)) {
+    const connection = createDbConnection(nodeConfig);
+    connection.ping((err) => {
+      if (err) {
+        console.error(`${nodeName} is down: ${err.message}`);
+        failedNodes[nodeName] = true; // Mark node as failed
+      } else {
+        console.log(`${nodeName} is healthy`);
+        failedNodes[nodeName] = false; // Mark node as healthy
+      }
+      connection.end();
+    });
   }
 });
 
@@ -219,32 +213,19 @@ app.post('/query', async (req, res) => {
     node3: 'games_2010_and_after',
   };
 
-  // Map the active node to the appropriate table
   const tableName = tableMapping[Object.keys(dbNodes).find(key => dbNodes[key] === activeNodeConfig)];
   if (!tableName) return res.status(400).json({ error: 'No table mapped to active node.' });
 
   const dynamicQuery = query.replace('{TABLE}', tableName); // Replace placeholder with the actual table name
 
-  // Check if node1 is down, and reroute query accordingly
-  if (failedNodes['node1']) {
-    console.log('Node1 is down, rerouting query...');
-    const availableNode = Object.keys(dbNodes).find(node => !failedNodes[node]);
-    if (availableNode) {
-      activeNodeConfig = dbNodes[availableNode];
-      console.log(`Rerouting query to ${availableNode}`);
-      const connection = createDbConnection(dbNodes[availableNode]);
-      connection.query(dynamicQuery, (err, results) => {
-        if (err) return res.status(500).json({ error: 'Query failed on rerouted node' });
-        res.json({ transactions: results });
-      });
-    } else {
-      return res.status(503).json({ error: 'No available node to reroute query' });
-    }
-  } else {
-    db.query(dynamicQuery, (err, results) => {
-      if (err) return res.status(500).json({ error: 'Query failed' });
+  try {
+    const connection = createDbConnection(activeNodeConfig);
+    connection.query(dynamicQuery, (err, results) => {
+      if (err) return res.status(500).json({ error: 'Query failed on active node' });
       res.json({ transactions: results });
     });
+  } catch (err) {
+    return res.status(500).json({ error: 'Failed to execute query' });
   }
 });
 
