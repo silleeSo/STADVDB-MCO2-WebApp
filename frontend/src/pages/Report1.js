@@ -3,7 +3,7 @@ import { executeQuery } from '../services/api';
 import SearchInputs from '../components/SearchInputs';
 import Report1_TableComponent from '../components/Report1_TableComponent';
 import report1Icon from '../assets/report1.png'; 
-
+import HomeButton from '../components/HomeButton';
 const Report1 = () => {
   const [transactions, setTransactions] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
@@ -42,6 +42,7 @@ const Report1 = () => {
 
   return (
     <div className="container">
+      <HomeButton/>
       <header className="text-center my-4">
         <h2>Top Games by Engagement</h2>
         <img

@@ -3,6 +3,7 @@ import { executeQuery } from '../services/api';
 import SearchInputs from '../components/SearchInputs';
 import Report2_TableComponent from '../components/Report2_TableComponent'; // Corrected the component import
 import report2Icon from '../assets/report2.png'; 
+import HomeButton from '../components/HomeButton';
 
 const Report2 = () => {
   const [transactions, setTransactions] = useState([]);
@@ -43,6 +44,7 @@ const Report2 = () => {
 
   return (
     <div className="container">
+      <HomeButton/>
       <header className="text-center my-4">
         <h2>Revenue and Value Analysis</h2>
         <img

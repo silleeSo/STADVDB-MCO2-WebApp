@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useLocation, useNavigate  } from 'react-router-dom';
+import HomeButton from '../components/HomeButton';
 
 const UpdatePage = () => {
   const location = useLocation();
@@ -99,6 +100,7 @@ const UpdatePage = () => {
 
   return (
     <div>
+      <HomeButton/>
       <h2 className="mb-4">Update Record</h2>
       <form onSubmit={handleSubmit}>
         {Object.keys(formData).map((field, index) => (

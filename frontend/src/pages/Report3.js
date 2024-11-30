@@ -3,6 +3,7 @@ import { executeQuery } from '../services/api';
 import SearchInputs from '../components/SearchInputs';
 import Report3_TableComponent from '../components/Report3_TableComponent'; // Corrected the component import
 import report3Icon from '../assets/report3.png'; 
+import HomeButton from '../components/HomeButton';
 const Report3 = () => {
   const [transactions, setTransactions] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
@@ -43,6 +44,7 @@ const Report3 = () => {
 
   return (
     <div className="container">
+      <HomeButton/>
       <header className="text-center my-4">
         <h2>Reviews and Ratings Correlation</h2> 
         <img

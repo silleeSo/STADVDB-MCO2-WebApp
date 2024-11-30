@@ -3,6 +3,7 @@ import QueryForm from '../components/QueryForm';
 import TransactionsLog from '../components/TransactionsLog';
 import SearchInputs from '../components/SearchInputs';
 import '../styles/App.css';
+import HomeButton from '../components/HomeButton';
 
 const SearchPage = () => {
   const [transactions, setTransactions] = useState([]); // State to store fetched transactions
@@ -19,6 +20,7 @@ const SearchPage = () => {
 
   return (
     <div className="container">
+      <HomeButton/>
       <h1>Search Records</h1>
       <br />
       <SearchInputs onSearch={handleSearch} />

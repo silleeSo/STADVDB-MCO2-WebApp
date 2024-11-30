@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { executeQuery } from '../services/api'; // Import executeQuery function from api.js
 import TableComponent from '../components/TableComponent'; // Import the new TableComponent
+import HomeButton from '../components/HomeButton';
 
 const DeletePage = () => {
   const [transactions, setTransactions] = useState([]);
@@ -38,6 +39,7 @@ const DeletePage = () => {
 
   return (
     <div>
+      <HomeButton />
       <h2>Delete or Update Records</h2>
       <p>Select a record then choose to either delete or update the record!</p>
       
