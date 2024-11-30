@@ -16,7 +16,7 @@ const DeletePage = () => {
     fetchData(); // Call the function to fetch the data on mount
   }, []); // Empty dependency array ensures this runs only once when the component mounts
 
-  const handleRowClick = async (transaction) => {
+  const handleDelete = async (transaction) => {
     const deleteQuery = `DELETE FROM games WHERE id = ${transaction.id}`;
     const response = await executeQuery(deleteQuery);
 
@@ -34,7 +34,7 @@ const DeletePage = () => {
       <h2>Delete or Update Records</h2>
       <p>Select a record then choose to either delete or update the record!</p>
       
-      <TableComponent transactions={transactions} onDelete={handleRowClick} />
+      <TableComponent transactions={transactions} onDelete={handleDelete} />
     </div>
   );
 };

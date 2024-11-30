@@ -38,33 +38,6 @@ app.get('/data', (req, res) => {
   });
 });
 
-/*
-app.delete('/data/:id', (req, res) => {
-  const { id } = req.params;
-  
-  // Make sure 'id' is a valid number
-  if (!id || isNaN(id)) {
-    return res.status(400).json({ error: 'Invalid ID' });
-  }
-
-  // Perform the database query
-  
-  db.query('DELETE FROM games WHERE id = ?', [id], (err, result) => {
-    if (err) {
-      console.error('Database error:', err); // Log the error for debugging
-      return res.status(500).json({ error: 'Failed to delete record' });
-    }
-    
-    // If no rows are deleted, handle the case where the ID was not found
-    if (result.affectedRows === 0) {
-      return res.status(404).json({ error: 'Record not found' });
-    }
-
-    res.json({ message: 'Data deleted successfully' });
-  });
-});*/
-
-
 // Route to execute a query
 app.post('/query', (req, res) => {
   const { query } = req.body;
@@ -91,8 +64,8 @@ app.post('/add-record', (req, res) => {
   const values = [
     data.field1, data.field2, data.field3, data.field4, data.field5,
     data.field6, data.field7, data.field8, data.field9, data.field10, data.field11,
-  ];
-
+  ]; 
+  
   db.query(query, values, (err, result) => {
     if (err) {
       console.error('Error inserting data:', err);
@@ -101,6 +74,85 @@ app.post('/add-record', (req, res) => {
     res.status(200).send('Record added successfully.');
   });
 });
+
+app.delete('/delete-record', (req, res) => {
+  const { id } = req.params;
+  
+  // Make sure 'id' is a valid number
+  if (!id || isNaN(id)) {
+    return res.status(400).json({ error: 'Invalid ID' });
+  }
+
+  // Perform the database query
+  
+  db.query('DELETE FROM games WHERE id = ?', [id], (err, result) => {
+    if (err) {
+      console.error('Database error:', err); // Log the error for debugging
+      return res.status(500).json({ error: 'Failed to delete record' });
+    }
+    
+    // If no rows are deleted, handle the case where the ID was not found
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ error: 'Record not found' });
+    }
+
+    res.json({ message: 'Data deleted successfully' });
+  });
+});
+
+
+// Update record endpoint
+app.put('/update-record', async (req, res) => {
+  const data = req.body;
+
+  // Validate required fields
+  if (!data.field1) {
+    return res.status(400).json({ error: 'ID is required for update' });
+  }
+
+  const query = `
+    UPDATE games
+    SET
+      name = ?,
+      release_date = ?,
+      release_year = ?,
+      price = ?,
+      positive_reviews = ?,
+      negative_reviews = ?,
+      user_score = ?,
+      metacritic_score = ?,
+      average_playtime_forever = ?,
+      average_playtime_2weeks = ?,
+      median_playtime_forever = ?
+    WHERE id = ?
+  `;
+
+  const values = [
+    data.field2, data.field3, data.field4, data.field5,
+    data.field6, data.field7, data.field8, data.field9,
+    data.field10, data.field11, data.field12, data.field1, // Ensure the ID is included at the end
+  ];
+
+  try {
+    // Execute query
+    db.query(query, values, (error, results) => {
+      if (error) {
+        console.error('Error updating record:', error);
+        return res.status(500).json({ error: 'Database error' });
+      }
+
+      if (results.affectedRows === 0) {
+        return res.status(404).json({ error: 'Record not found' });
+      }
+
+      res.status(200).json({ message: 'Record updated successfully' });
+    });
+  } catch (err) {
+    console.error('Error:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 
 app.listen(port, () => {
   console.log(`Server running on http://localhost:${port}`);

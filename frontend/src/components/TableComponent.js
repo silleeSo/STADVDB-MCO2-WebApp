@@ -1,7 +1,14 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom'; // Import useNavigate
 
 const TableComponent = ({ transactions, onDelete, onUpdate }) => {
   const [selectedRow] = useState(null);
+  const navigate = useNavigate(); // Initialize navigate function
+
+  const handleUpdate = (transaction) => {
+    // Redirect to the update page and pass transaction as state
+    navigate(`/update`, { state: { transaction } });
+  };
 
 
   return (
@@ -30,7 +37,7 @@ const TableComponent = ({ transactions, onDelete, onUpdate }) => {
               key={transaction.id}
               //onClick={() => handleRowClick(transaction)}
               style={{
-                cursor: 'pointer',
+                //cursor: 'pointer',
                 backgroundColor: selectedRow === transaction.id ? '#f8d7da' : 'transparent',
               }}
             >
@@ -52,7 +59,7 @@ const TableComponent = ({ transactions, onDelete, onUpdate }) => {
                   className="btn btn-success btn-sm"
                   onClick={(e) => {
                     e.stopPropagation(); // Prevent triggering row selection
-                    onUpdate(transaction.id);
+                    handleUpdate(transaction); // Redirect to the update page
                   }}
                 >
                   Update
