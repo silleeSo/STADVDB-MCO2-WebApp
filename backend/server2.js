@@ -53,7 +53,7 @@ let activeNodeConfig = dbNodes.node1; // Default to node1 initially
     return createConnection(activeNodeConfig);
   }
 
-  const db = getActiveConnection();
+  let db = getActiveConnection();
 
 // Route to handle node switching
 app.post('/switch-node', (req, res) => {
@@ -71,6 +71,10 @@ app.post('/switch-node', (req, res) => {
     res.json({ message: 'Node switched successfully', node });
   });
 
+  app.get('/active-node', (req, res) => {
+    res.json({ activeNode: activeNodeConfig });
+  });
+  
 
 // Establish a connection
 db.connect((err) => {
