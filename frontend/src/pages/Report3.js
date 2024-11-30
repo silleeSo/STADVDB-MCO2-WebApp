@@ -2,10 +2,10 @@ import React from 'react';
 import SearchInputs from '../components/SearchInputs';
 import Table from '../components/Table';
 
-const Report1 = () => {
+const Report3 = () => {
     return (
     <div class="text-center">
-      <h2> Top Games by Engagement</h2>
+      <h2>Reviews and Ratings Correlation</h2>
       {/* Row container with Bootstrap grid system */}
       <br></br>
       <p><SearchInputs /></p>
@@ -15,4 +15,4 @@ const Report1 = () => {
   );
 };
 
-export default Report1;
+export default Report3;

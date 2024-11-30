@@ -13,7 +13,7 @@ app.use(express.json()); // For parsing application/json
 const db = mysql.createConnection({
   host: 'localhost', // Adjust based on your MySQL server
   user: 'root', // Your MySQL username
-  password: '6761', // Your MySQL password
+  password: '0000', // Your MySQL password
   database: 'mco2_games_master',    // Your MySQL database name
   port: 3306                        // Set port to 80 if MySQL is listening on port 80   
 });

@@ -1,0 +1,16 @@
+.container-fluid {
+  padding: 20px; /* Add some padding */
+}
+
+form {
+  max-width: 800px;
+  margin: 0 auto; /* Center the form */
+  padding: 20px;
+  background-color: #f9f9f9;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Optional shadow */
+}
+
+input {
+  width: 100%; /* Ensure inputs take full width of their container */
+}

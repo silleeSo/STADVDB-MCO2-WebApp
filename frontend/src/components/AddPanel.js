@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-
+import '../styles/AddPage.css'; 
 const AddPanel = () => {
   const [formData, setFormData] = useState({
     field1: '', // Name
@@ -88,18 +88,22 @@ const AddPanel = () => {
     }
   };
 
-  return (
-    <div>
-      <h2 className="mb-4">Add Record</h2>
+ return (
+  <div className="container-fluid">
+    <div className="mx-auto" style={{ width: '1200px' }}>
+      <h2 className="mb-4 text-center">Add Record</h2>
       <form onSubmit={handleSubmit}>
         {Object.keys(formData).map((field, index) => (
-          <div className="mb-3 row align-items-center" key={field}>
-            <label htmlFor={field} className="col-sm-3 col-form-label text-end">
+          <div className="mb-3 row" key={field}>
+            <label
+              htmlFor={field}
+              className="col-sm-3 col-form-label text-end"
+            >
               {labels[index]}:
             </label>
             <div className="col-sm-9">
               <input
-                type={inputTypes[field]} // Dynamically set the input type
+                type={inputTypes[field]}
                 className="form-control"
                 id={field}
                 name={field}
@@ -110,12 +114,16 @@ const AddPanel = () => {
             </div>
           </div>
         ))}
-        <button type="submit" className="btn btn-primary">
-          Submit
-        </button>
+        <div className="text-center">
+          <button type="submit" className="btn btn-primary mt-3">
+            Submit
+          </button>
+        </div>
       </form>
     </div>
-  );
+  </div>
+);
+
 };
 
 export default AddPanel;
