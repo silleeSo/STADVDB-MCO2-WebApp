@@ -5,15 +5,16 @@ import TableComponent from '../components/TableComponent'; // Import the new Tab
 const DeletePage = () => {
   const [transactions, setTransactions] = useState([]);
 
-  // Fetch data from the database when the component mounts
-  useEffect(() => {
-    const fetchData = async () => {
-      const query = 'SELECT * FROM games LIMIT 100';
-      const result = await executeQuery(query);
-      setTransactions(result.transactions); // Store the fetched data in state
-    };
+  // Function to fetch data
+  const fetchData = async () => {
+    const query = 'SELECT * FROM games LIMIT 100';
+    const result = await executeQuery(query);
+    setTransactions(result.transactions); // Store the fetched data in state
+  };
 
-    fetchData(); // Call the function to fetch the data on mount
+  // Fetch data when the component mounts
+  useEffect(() => {
+    fetchData();
   }, []); // Empty dependency array ensures this runs only once when the component mounts
 
   const handleDelete = async (transaction) => {
@@ -22,11 +23,17 @@ const DeletePage = () => {
 
     if (response.success) {
       alert(`Record with ID ${transaction.id} has been deleted.`);
-      // Remove the deleted record from the frontend state
-      setTransactions(transactions.filter((item) => item.id !== transaction.id));
+      // Option 1: Update state (current implementation)
+      //setTransactions(transactions.filter((item) => item.id !== transaction.id));
+
+      // Option 2: Refresh the entire table from the backend
+      // Uncomment the line below if you want to refresh from the server:
+      await fetchData();
     } else {
       alert('Failed to delete record.');
     }
+
+    await fetchData();
   };
 
   return (

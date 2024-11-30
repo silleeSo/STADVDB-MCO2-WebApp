@@ -109,6 +109,11 @@ db.connect((err) => {
   console.log('Connected to MySQL on port 20302 as id ' + db.threadId);
 });
 
+
+// Add and delete record routes will also use `getActiveConnection()`
+// Use the same approach to fetch a connection and run the queries
+
+
 // Example route to fetch data
 app.get('/data', (req, res) => {
   db.query('SELECT COUNT(*) AS count FROM games', (err, results) => {
@@ -122,6 +127,7 @@ app.get('/data', (req, res) => {
 });
 
 // Route to execute a query
+
 app.post('/query', (req, res) => {
   const { query } = req.body;
   db.query(query, (err, results) => {
