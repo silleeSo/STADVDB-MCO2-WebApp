@@ -17,7 +17,7 @@ const Report1 = () => {
           average_playtime_forever, 
           average_playtime_2weeks, 
           median_playtime_forever
-        FROM games
+        FROM {TABLE}
         ORDER BY average_playtime_forever DESC
         LIMIT 100;
       `;

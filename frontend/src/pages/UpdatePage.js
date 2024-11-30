@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate  } from 'react-router-dom';
 
 const UpdatePage = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const { transaction } = location.state || {}; // Safely get transaction from state
 
   
@@ -89,6 +90,7 @@ const UpdatePage = () => {
       } else {
         alert('Failed to update record.');
       }
+      navigate('/delete');
     } catch (error) {
       console.error('Error updating record:', error);
       alert('An error occurred while updating the record.');

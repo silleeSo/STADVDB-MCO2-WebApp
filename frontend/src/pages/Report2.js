@@ -17,7 +17,7 @@ const Report2 = () => {
           price,
           average_playtime_forever,
           (average_playtime_forever / price) AS playtime_per_dollar
-        FROM games
+        FROM {TABLE}
         WHERE price > 0
         ORDER BY playtime_per_dollar DESC
         LIMIT 100; -- Corrected placement of LIMIT

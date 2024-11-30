@@ -86,6 +86,7 @@ db.connect((err) => {
 });
 
 // Route to execute a query
+/*
 app.post('/query', (req, res) => {
   const { query } = req.body;
   db.query(query, (err, results) => {
@@ -95,7 +96,39 @@ app.post('/query', (req, res) => {
     }
     res.json({ transactions: results }); // Send back the result as "transactions"
   });
+});*/
+
+
+// Mapping of nodes to their respective tables
+const tableMapping = {
+  node1: 'games',
+  node2: 'games_before_2010',
+  node3: 'games_2010_and_after',
+};
+
+// Route to execute a query with dynamic table switching
+app.post('/query', (req, res) => {
+  const { query } = req.body;
+
+  // Determine the table name based on the active node
+  const tableName = tableMapping[Object.keys(dbNodes).find(key => dbNodes[key] === activeNodeConfig)];
+
+  if (!tableName) {
+    return res.status(400).json({ error: 'No table mapped to the active node.' });
+  }
+
+  // Replace the placeholder {TABLE} in the query with the table name
+  const dynamicQuery = query.replace('{TABLE}', tableName);
+
+  db.query(dynamicQuery, (err, results) => {
+    if (err) {
+      console.error('Error executing query:', err);
+      return res.status(500).json({ error: 'Failed to execute query' });
+    }
+    res.json({ transactions: results });
+  });
 });
+
 
 //Delete Record Route
 app.delete('/delete-record', (req, res) => {

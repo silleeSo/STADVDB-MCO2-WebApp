@@ -3,6 +3,32 @@ import Dropdown from './Dropdown';
 
 const SearchInputs = (onSearch, onNodeSelect) => {
   const [searchTerm, setSearchTerm] = useState('');
+  const [dropdownTitle, setDropdownTitle] = useState('Select Node'); // Dynamic title
+
+  const options = [
+    { label: 'Node 1 (Central Node)', value: 'node1' },
+    { label: 'Node 2 (< 2010)', value: 'node2' },
+    { label: 'Node 3 (>= 2010)', value: 'node3' },
+  ];
+
+  // Fetch the active node from the backend
+  const fetchActiveNode = async () => {
+    try {
+      const response = await fetch(`http://localhost:5000/active-node`);
+      const data = await response.json();
+
+      if (response.ok) {
+        const activeOption = options.find((opt) => opt.value === data.node);
+        setDropdownTitle(activeOption ? activeOption.label : 'Select Node');
+      } else {
+        console.error('Error fetching active node:', data.error);
+      }
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  };
+
+  
 
   const handleSearchChange = (event) => {
     setSearchTerm(event.target.value);
@@ -33,6 +59,8 @@ const SearchInputs = (onSearch, onNodeSelect) => {
       const data = await response.json();
       if (response.ok) {
         console.log(`Switched to Node: ${data.node}`);
+        window.location.reload();
+
       } else {
         console.error('Error switching node:', data.error);
       }
@@ -40,12 +68,12 @@ const SearchInputs = (onSearch, onNodeSelect) => {
       console.error('Error:', error);
     }
   };
-
+/*
   const options = [
     { label: 'Node 1 (Central Node)', value: 'node1' },
     { label: 'Node 2 (< 2010)', value: 'node2' },
     { label: 'Node 3 (>= 2010)', value: 'node3' },
-  ];
+  ];*/
 
   return (
     <div className="row">
@@ -54,7 +82,7 @@ const SearchInputs = (onSearch, onNodeSelect) => {
           <span className="input-group-btn">
             <Dropdown
               options={options}
-              title="Select Node"
+              title={dropdownTitle}
               onSelect={handleNodeSelect}
             />
           </span>

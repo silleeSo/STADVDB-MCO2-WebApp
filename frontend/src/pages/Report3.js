@@ -17,7 +17,7 @@ const Report3 = () => {
           negative_reviews,
           user_score,
           metacritic_score
-        FROM games
+        FROM {TABLE}
         ORDER BY user_score DESC, positive_reviews DESC
         LIMIT 10;
       `; // Updated SQL query to match the new requirement
