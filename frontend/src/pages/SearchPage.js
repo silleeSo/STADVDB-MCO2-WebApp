@@ -1,21 +1,29 @@
-import React, { useState } from 'react';  // <-- Add useState here
+import React, { useState } from 'react';
 import QueryForm from '../components/QueryForm';
 import TransactionsLog from '../components/TransactionsLog';
-import SearchBar from '../components/SearchBar';
-import '../styles/App.css'; 
-
+import SearchInputs from '../components/SearchInputs';
+import '../styles/App.css';
 
 const SearchPage = () => {
-  const [transactions, setTransactions] = useState([]);  // useState will now work
+  const [transactions, setTransactions] = useState([]); // State to store fetched transactions
+  const [searchTerm, setSearchTerm] = useState(''); // State to store search term
+
+  const handleSearch = (query) => {
+    setSearchTerm(query); // Update the search term state
+  };
+
+  // Example filter logic (if applicable):
+  const filteredTransactions = transactions.filter((transaction) =>
+    transaction.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
-    <div>    
+    <div className="container">
       <h1>Search Records</h1>
-      <br></br>
-      <SearchBar/>
-      <br></br>
-      <TransactionsLog transactions={transactions} />
-      
+      <br />
+      <SearchInputs onSearch={handleSearch} />
+      <br />
+      <TransactionsLog transactions={filteredTransactions} />
     </div>
   );
 };
