@@ -23,24 +23,25 @@ function createConnection(nodeConfig) {
 
 // Configuration for each database node
 const dbNodes = {
-    node1: {host: 'ccscloud.dlsu.edu.ph',
-      port: 20302,
-      user: 'user',
-      password: 'password',
+    node1: {
+      host: '127.0.0.1',
+      port: 3300,
+      user: 'root',
+      password: 'erdana2003',
       database: 'mco_db'
     },
     node2: {
-      host: 'ccscloud.dlsu.edu.ph',
-      port: 20312,
-      user: 'user',
-      password: 'password',
+      host: '127.0.0.1',
+      port: 3306,
+      user: 'root',
+      password: 'erdana2003',
       database: 'mco_db'
     },
     node3: {
-      host: 'ccscloud.dlsu.edu.ph',
-      port: 20322,
-      user: 'user',
-      password: 'password',
+      host: '127.0.0.1',
+      port: 3307,
+      user: 'root',
+      password: 'erdana2003',
       database: 'mco_db'
     }
   };
@@ -49,11 +50,30 @@ const dbNodes = {
 let activeNodeConfig = dbNodes.node1; // Default to node1 initially
   
 // Function to get the current active connection
-  function getActiveConnection() {
-    return createConnection(activeNodeConfig);
-  }
+function getActiveConnection() {
+  const connection = createConnection(activeNodeConfig);
+  connection.connect((err) => {
+    if (err) {
+      console.error('Error connecting to MySQL:', err.stack);
+      return;
+    }
+    console.log('Connected to MySQL on port ' + connection.config.port + ' as id ' + connection.threadId);
 
-  let db = getActiveConnection();
+    // Set the isolation level for the new connection
+    connection.query('SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ', (err) => {
+      if (err) {
+        console.error('Error setting isolation level:', err);
+      } else {
+        console.log('Isolation level set to REPEATABLE READ for new connection');
+      }
+    });
+  });
+  return connection;
+}
+
+// Initial connection
+let db = getActiveConnection();
+
 
 // Route to handle node switching
 app.post('/switch-node', (req, res) => {
@@ -82,7 +102,7 @@ db.connect((err) => {
     console.error('Error connecting to MySQL:', err.stack);
     return;
   }
-  console.log('Connected to MySQL on port 20302 as id ' + db.threadId);
+  console.log('Connected to MySQL on port ' + db.config.port + ' as id ' + db.threadId);
 });
 
 // Route to execute a query
