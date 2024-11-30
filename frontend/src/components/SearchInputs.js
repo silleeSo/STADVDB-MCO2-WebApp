@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import Dropdown from './Dropdown';
 
-const SearchInputs = ({ onSearch, onNodeSelect }) => {
+const SearchInputs = (onSearch, onNodeSelect) => {
   const [searchTerm, setSearchTerm] = useState('');
 
   const handleSearchChange = (event) => {
@@ -18,6 +18,29 @@ const SearchInputs = ({ onSearch, onNodeSelect }) => {
     }
   };
 
+  const handleNodeSelect = async (node) => {
+    console.log(`Selected Node: ${node}`);
+    
+    try {
+      const response = await fetch(`http://localhost:5000/switch-node`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ node }),
+      });
+      
+      const data = await response.json();
+      if (response.ok) {
+        console.log(`Switched to Node: ${data.node}`);
+      } else {
+        console.error('Error switching node:', data.error);
+      }
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  };
+
   const options = [
     { label: 'Node 1 (Central Node)', value: 'node1' },
     { label: 'Node 2 (< 2010)', value: 'node2' },
@@ -28,7 +51,13 @@ const SearchInputs = ({ onSearch, onNodeSelect }) => {
     <div className="row">
       <div className="col-lg-6">
         <div className="input-group">
-          <Dropdown options={options} title="Select Node" onSelect={onNodeSelect} />
+          <span className="input-group-btn">
+            <Dropdown
+              options={options}
+              title="Select Node"
+              onSelect={handleNodeSelect}
+            />
+          </span>
         </div>
       </div>
       <div className="col-lg-6">
