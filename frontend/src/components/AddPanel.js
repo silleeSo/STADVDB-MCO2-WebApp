@@ -2,17 +2,17 @@ import React, { useState } from 'react';
 
 const AddPanel = () => {
   const [formData, setFormData] = useState({
-    field1: '',
-    field2: '',
-    field3: '',
-    field4: '',
-    field5: '',
-    field6: '',
-    field7: '',
-    field8: '',
-    field9: '',
-    field10: '',
-    field11: '',
+    field1: '', // Name
+    field2: '', // Release Date
+    field3: '', // Release Year
+    field4: '', // Price
+    field5: '', // Positive Reviews
+    field6: '', // Negative Reviews
+    field7: '', // User Score
+    field8: '', // Metacritic Score
+    field9: '', // Average Playtime Forever
+    field10: '', // Average Playtime 2 Weeks
+    field11: '', // Median Playtime Forever
   });
 
   const labels = [
@@ -29,6 +29,21 @@ const AddPanel = () => {
     'Median Playtime Forever',
   ];
 
+  // Define the type of input for each field
+  const inputTypes = {
+    field1: 'text', // Name
+    field2: 'date', // Release Date
+    field3: 'number', // Release Year
+    field4: 'number', // Price
+    field5: 'number', // Positive Reviews
+    field6: 'number', // Negative Reviews
+    field7: 'number', // User Score
+    field8: 'number', // Metacritic Score
+    field9: 'number', // Average Playtime Forever
+    field10: 'number', // Average Playtime 2 Weeks
+    field11: 'number', // Median Playtime Forever
+  };
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prevState) => ({
@@ -39,7 +54,7 @@ const AddPanel = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
+
     try {
       const response = await fetch('http://localhost:5000/add-record', {
         method: 'POST',
@@ -48,7 +63,7 @@ const AddPanel = () => {
         },
         body: JSON.stringify(formData), // Send form data as JSON
       });
-  
+
       if (response.ok) {
         alert('Record added successfully!');
         setFormData({
@@ -72,7 +87,6 @@ const AddPanel = () => {
       alert('An error occurred while submitting the form.');
     }
   };
-  
 
   return (
     <div>
@@ -85,7 +99,7 @@ const AddPanel = () => {
             </label>
             <div className="col-sm-9">
               <input
-                type="text"
+                type={inputTypes[field]} // Dynamically set the input type
                 className="form-control"
                 id={field}
                 name={field}

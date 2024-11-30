@@ -82,10 +82,10 @@ app.post('/add-record', (req, res) => {
   const data = req.body;
 
   const query = `
-    INSERT INTO records (
+    INSERT INTO games (
       name, release_date, release_year, price, positive_reviews,
-      negative_reviews, user_score, metacritic_score, avg_playtime_forever,
-      avg_playtime_2weeks, median_playtime_forever
+      negative_reviews, user_score, metacritic_score, average_playtime_forever,
+      average_playtime_2weeks, median_playtime_forever
     ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
 
   const values = [

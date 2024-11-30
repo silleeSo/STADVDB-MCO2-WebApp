@@ -1,12 +1,8 @@
 import React, { useState } from 'react';
 
 const TableComponent = ({ transactions, onDelete, onUpdate }) => {
-  const [selectedRow, setSelectedRow] = useState(null);
+  const [selectedRow] = useState(null);
 
-  
-  const handleRowClick = (id) => {
-    setSelectedRow(id); // Highlight selected row
-  };
 
   return (
     <table className="table" class="table table-striped">
