@@ -1,10 +1,21 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Dropdown from './Dropdown';
 
-const SearchInputs = () => {
-  const handleNodeSelect = (node) => {
-    console.log(`Selected Node: ${node}`);
-    // Implement your logic to connect to the selected database node
+const SearchInputs = ({ onSearch, onNodeSelect }) => {
+  const [searchTerm, setSearchTerm] = useState('');
+
+  const handleSearchChange = (event) => {
+    setSearchTerm(event.target.value);
+  };
+
+  const handleSearchClick = () => {
+    onSearch(searchTerm); // Trigger the search
+  };
+
+  const handleKeyPress = (event) => {
+    if (event.key === 'Enter') {
+      onSearch(searchTerm); // Trigger search on Enter key press
+    }
   };
 
   const options = [
@@ -17,21 +28,23 @@ const SearchInputs = () => {
     <div className="row">
       <div className="col-lg-6">
         <div className="input-group">
-          <span className="input-group-btn">
-            <Dropdown
-            options={options}
-            title="Select Node"
-            onSelect={handleNodeSelect}
-          />
-          </span>
-          
+          <Dropdown options={options} title="Select Node" onSelect={onNodeSelect} />
         </div>
       </div>
       <div className="col-lg-6">
         <div className="input-group">
-          <input type="text" className="form-control" placeholder="Search for..." />
+          <input
+            type="text"
+            className="form-control"
+            placeholder="Search for..."
+            value={searchTerm}
+            onChange={handleSearchChange}
+            onKeyPress={handleKeyPress}
+          />
           <span className="input-group-btn">
-            <button className="btn btn-default" type="button">Go!</button>
+            <button className="btn btn-default" type="button" onClick={handleSearchClick}>
+              Go!
+            </button>
           </span>
         </div>
       </div>
