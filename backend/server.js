@@ -11,12 +11,94 @@ app.use(express.json()); // For parsing application/json
 
 // MySQL connection
 const db = mysql.createConnection({
-  host: 'localhost', // Adjust based on your MySQL server
-  user: 'root', // Your MySQL username
-  password: '0000', // Your MySQL password
-  database: 'mco2_games_master',    // Your MySQL database name
-  port: 3306                        // Set port to 80 if MySQL is listening on port 80   
+  //host: 'localhost', // Adjust based on your MySQL server
+  //user: 'root', // Your MySQL username
+  //user: 'user',
+  //password: '6761', // Your MySQL password
+  //database: 'mco2_games_master',    // Your MySQL database name
+  //port: 3306                        // Set port to 80 if MySQL is listening on port 80   
+  host: 'ccscloud.dlsu.edu.ph',        // Hostname or IP address of the MySQL server
+  port: 20302,                         // External port for MySQL
+  user: 'user',                        // MySQL user
+  password: 'password',
+  database: 'mco_db'                   // The database you want to connect to
 });
+
+
+// Configuration for each database node
+const dbNodes = {
+  node1: {
+    host: 'ccscloud.dlsu.edu.ph',
+    port: 20302,
+    user: 'user',
+    password: 'password',
+    database: 'mco_db'
+  },
+  node2: {
+    host: 'ccscloud.dlsu.edu.ph',
+    port: 20312,
+    user: 'user',
+    password: 'password',
+    database: 'mco_db'
+  },
+  node3: {
+    host: 'ccscloud.dlsu.edu.ph',
+    port: 20322,
+    user: 'user',
+    password: 'password',
+    database: 'mco_db'
+  }
+};
+
+// Function to create a database connection dynamically
+function createConnection(nodeConfig) {
+  return mysql.createConnection({
+    host: nodeConfig.host,
+    port: nodeConfig.port,
+    user: nodeConfig.user,
+    password: nodeConfig.password,
+    database: nodeConfig.database
+  });
+}
+
+// Example: Switch based on some condition
+function switchNode(nodeKey) {
+  // Check if the node configuration exists
+  if (!dbNodes[nodeKey]) {
+    console.error(`Node configuration for ${nodeKey} not found`);
+    return null;
+  }
+
+  // Create a new connection
+  const connection = createConnection(dbNodes[nodeKey]);
+
+  // Connect to the database
+  connection.connect((err) => {
+    if (err) {
+      console.error(`Error connecting to ${nodeKey}:`, err);
+      return;
+    }
+    console.log(`Connected to ${nodeKey}`);
+    
+    // Run a simple query as a test
+    connection.query('SELECT COUNT(*) AS count FROM games', (err, results) => {
+      if (err) {
+        console.error(`Error running query on ${nodeKey}:`, err);
+        return;
+      }
+      console.log(`Records in TABLE games on ${nodeKey}:`, results[0].count);
+      
+      // Close the connection when done
+      connection.end((err) => {
+        if (err) {
+          console.error(`Error closing connection for ${nodeKey}:`, err);
+          return;
+        }
+        console.log(`Connection to ${nodeKey} closed.`);
+      });
+    });
+  });
+}
 
 // Establish a connection
 db.connect((err) => {
@@ -24,17 +106,18 @@ db.connect((err) => {
     console.error('Error connecting to MySQL:', err.stack);
     return;
   }
-  console.log('Connected to MySQL on port 3306 as id ' + db.threadId);
+  console.log('Connected to MySQL on port 20302 as id ' + db.threadId);
 });
 
 // Example route to fetch data
 app.get('/data', (req, res) => {
-  db.query('SELECT * FROM games', (err, results) => {
+  db.query('SELECT COUNT(*) AS count FROM games', (err, results) => {
     if (err) {
       console.error('Error fetching data:', err);
       return res.status(500).send('Error fetching data');
     }
     res.json(results);
+    console.log('Records in TABLE games:', results[0].count);
   });
 });
 
@@ -152,6 +235,30 @@ app.put('/update-record', async (req, res) => {
     res.status(500).json({ error: 'Internal server error' });
   }
 });
+
+// Route to handle node switching
+app.post('/switch-node', (req, res) => {
+  const { node } = req.body;
+
+  if (!node || !dbNodes[node]) {
+    return res.status(400).json({ error: 'Invalid node selection' });
+  }
+
+  // Switch the node
+  const connection = createConnection(dbNodes[node]);
+  connection.connect((err) => {
+    if (err) {
+      console.error(`Error connecting to ${node}:`, err);
+      return res.status(500).json({ error: 'Failed to connect to the selected node' });
+    }
+
+    console.log(`Switched to ${node}`);
+    connection.end(); // Close the connection after verification
+
+    res.json({ message: 'Node switched successfully', node });
+  });
+});
+
 
 
 app.listen(port, () => {
