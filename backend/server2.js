@@ -1,17 +1,17 @@
 // Importing required modules
-const express = require('express');
-const mysql = require('mysql2');
-const cors = require('cors');
-const cron = require('node-cron');
-const shell = require('shelljs');
+const express = require('express'); // Web framework for building the API
+const mysql = require('mysql2'); // MySQL database connector
+const cors = require('cors'); // Middleware for Cross-Origin Resource Sharing
+const cron = require('node-cron'); // Scheduler for periodic tasks
+const shell = require('shelljs'); // Shell commands utility
 
-// Create an instance of Express app
+// Create an instance of the Express app
 const app = express();
-const port = 5000; // Port where the server will run
+const port = 5000; // Define the port on which the server will run
 
-// Middleware to allow cross-origin requests and parse JSON bodies
-app.use(cors());
-app.use(express.json());
+// Middleware setup
+app.use(cors()); // Allow cross-origin requests
+app.use(express.json()); // Parse incoming JSON requests
 
 // Database node configurations for three different MySQL servers
 const dbNodes = {
@@ -40,6 +40,9 @@ const dbNodes = {
 
 let activeNodeConfig = dbNodes.node1; // Default active node
 const failedNodes = {}; // Object to track failed nodes
+// Transaction queue and failed replication tracking
+let transactionQueue = []; // Stores failed transactions that need to be retried
+
 
 // Function to create a database connection
 function createDbConnection(nodeConfig) {
@@ -75,19 +78,118 @@ function createDbConnection(nodeConfig) {
   return connection;
 }
 
+// Retry logic for replication failures (Node 1 or Node 2 to central node and Node 2 or Node 3 replication failure)
+async function retryReplication(transaction, targetNode) {
+  const maxRetries = 5;
+  let attempt = 0;
+
+  while (attempt < maxRetries) {
+    try {
+      const connection = createDbConnection(targetNode);
+      await executeReplication(transaction, connection);
+      console.log(`Transaction replicated successfully to ${targetNode.host}`);
+      return true;
+    } catch (err) {
+      console.error(`Error replicating transaction to ${targetNode.host}`, err);
+      attempt++;
+      await delay(2000); // Delay before retrying
+    }
+  }
+
+  console.log(`Failed to replicate transaction to ${targetNode.host} after ${maxRetries} attempts`);
+  return false;
+}
+
+// Function to execute the global transaction
+async function executeGlobalTransaction(transaction, connection) {
+  connection.beginTransaction((err) => {
+    if (err) throw err;
+
+    // Simulate global transaction execution
+    connection.query(transaction.query, (err, results) => {
+      if (err) {
+        connection.rollback();
+        throw err;
+      } else {
+        connection.commit((err) => {
+          if (err) {
+            connection.rollback();
+            throw err;
+          }
+          console.log('Global transaction executed successfully');
+        });
+      }
+    });
+  });
+}
+
+// Function to replicate the transaction to other nodes
+async function replicateTransaction(transaction) {
+  try {
+    const replicationNodes = [dbNodes.node2, dbNodes.node3];
+    for (const node of replicationNodes) {
+      const replicationSuccess = await retryReplication(transaction, node);
+      if (!replicationSuccess) {
+        return false; // Replication failed
+      }
+    }
+    return true; // Replication succeeded
+  } catch (err) {
+    console.error('Error during replication', err);
+    return false; // Replication failed
+  }
+}
+
+// Function to process failed transactions and retry
+async function processFailedTransactions() {
+  for (const transaction of transactionQueue) {
+    try {
+      const replicationSuccess = await replicateTransaction(transaction);
+      if (replicationSuccess) {
+        // If replication is successful, remove from queue
+        transactionQueue = transactionQueue.filter(t => t !== transaction);
+      }
+    } catch (err) {
+      console.error('Error retrying failed transaction', err);
+    }
+  }
+}
+
+// Cron job to periodically retry failed transactions
+cron.schedule('* * * * *', async () => {
+  console.log('Retrying failed transactions...');
+  await processFailedTransactions();
+});
+
 // Periodic health check that runs every minute to detect failed nodes and switch active node
 cron.schedule('* * * * *', async () => {
   console.log('Running periodic health checks...');
+
   for (const [nodeName, nodeConfig] of Object.entries(dbNodes)) {
     const connection = createDbConnection(nodeConfig);
-    connection.ping((err) => {
+    connection.ping(async (err) => {
       if (err) {
-        console.error(`${nodeName} is down: ${err.message}`);
-        failedNodes[nodeName] = true; // Mark node as failed
+        if (!failedNodes[nodeName]) {
+          console.error(`${nodeName} is down: ${err.message}`);
+          failedNodes[nodeName] = true;
+        }
       } else {
-        console.log(`${nodeName} is healthy`);
-        failedNodes[nodeName] = false; // Mark node as healthy
+        if (failedNodes[nodeName]) {
+          console.log(`${nodeName} has recovered.`);
+          failedNodes[nodeName] = false;
+
+          if (nodeName === 'node1') {
+            console.log('Central node recovered. Processing transaction queue...');
+            await processTransactionQueueImmediatelyWithLogs();
+          } else {
+            console.log(`Node ${nodeName} recovered. Attempting immediate replication of pending transactions.`);
+            await processPendingTransactionsForNode(nodeConfig);
+          }
+        } else {
+          console.log(`${nodeName} is healthy.`);
+        }
       }
+
       connection.end();
     });
   }
@@ -176,14 +278,105 @@ app.post('/simulate-failure', (req, res) => {
   res.json({ message: `${node} marked as failed` });
 });
 
+// Function to process transactionQueue immediately when central node recovers
+async function processTransactionQueueImmediately() {
+  console.log("Processing transactionQueue immediately as central node recovered...");
+  
+  for (const transaction of transactionQueue) {
+    try {
+      const replicationSuccess = await replicateTransaction(transaction);
+      if (replicationSuccess) {
+        // If replication is successful, remove from the queue
+        transactionQueue = transactionQueue.filter(t => t !== transaction);
+        console.log("Transaction processed successfully and removed from queue.");
+      }
+    } catch (err) {
+      console.error("Error processing transaction during immediate recovery handling", err);
+    }
+  }
+}
+
+// Function to process transactions targeting a specific node
+async function processPendingTransactionsForNode(recoveredNodeConfig) {
+  console.log(`Processing pending transactions for recovered node: ${recoveredNodeConfig.host}`);
+
+  // Filter transactions targeting the recovered node
+  const transactionsForNode = transactionQueue.filter(transaction => 
+    transaction.targetNode.host === recoveredNodeConfig.host
+  );
+
+  for (const transaction of transactionsForNode) {
+    try {
+      // Attempt to replicate transaction to the recovered node
+      const connection = createDbConnection(recoveredNodeConfig);
+      await executeReplication(transaction, connection);
+
+      // Remove successfully processed transaction from the queue
+      transactionQueue = transactionQueue.filter(t => t !== transaction);
+      console.log(`Transaction successfully replicated to ${recoveredNodeConfig.host}`);
+    } catch (err) {
+      console.error(`Error replicating transaction to ${recoveredNodeConfig.host}`, err);
+    }
+  }
+}
+
+// Enhanced function to process transaction queue with detailed logs
+async function processTransactionQueueImmediatelyWithLogs() {
+  console.log('Starting immediate processing of the transaction queue...');
+  console.log(`Queue length: ${transactionQueue.length}`);
+
+  if (transactionQueue.length === 0) {
+    console.log('Transaction queue is empty. Nothing to process.');
+    return;
+  }
+
+  for (const transaction of transactionQueue) {
+    try {
+      const success = await replicateTransaction(transaction);
+      if (success) {
+        // Remove successful transactions from the queue
+        transactionQueue = transactionQueue.filter(t => t !== transaction);
+        console.log(`Transaction successfully processed: ${transaction.query}`);
+      } else {
+        console.warn(`Transaction failed and remains in queue: ${transaction.query}`);
+      }
+    } catch (err) {
+      console.error(`Error processing transaction: ${transaction.query}`, err);
+    }
+  }
+
+  console.log('Transaction queue processing completed.');
+}
+
 // Route to simulate node recovery
 app.post('/simulate-recovery', async (req, res) => {
   const { node } = req.body;
-  if (!dbNodes[node]) return res.status(400).json({ error: 'Invalid node selection' });
+  if (!dbNodes[node]) {
+    return res.status(400).json({ error: 'Invalid node selection' });
+  }
 
+  console.log(`Attempting to recover node: ${node}`);
   const success = await recoverNode(node);
-  failedNodes[node] = !success; // Update failure status
-  res.json({ message: success ? `${node} recovered successfully` : `Failed to recover ${node}` });
+  failedNodes[node] = !success;
+
+  if (success) {
+    console.log(`${node} successfully recovered.`);
+    
+    if (node === 'node1') {
+      console.log('Central node recovered. Processing transaction queue...');
+      await processTransactionQueueImmediatelyWithLogs();
+    } else {
+      console.log(`Node ${node} recovered. Attempting immediate replication of pending transactions.`);
+      const recoveredNodeConfig = dbNodes[node];
+      await processPendingTransactionsForNode(recoveredNodeConfig);
+    }
+  } else {
+    console.error(`Failed to recover ${node}. It remains marked as failed.`);
+  }
+
+  res.json({
+    message: success ? `${node} recovered successfully` : `Failed to recover ${node}`,
+  });
 });
 
 // Route to get the active node configuration
@@ -220,12 +413,119 @@ app.post('/query', async (req, res) => {
 
   try {
     const connection = createDbConnection(activeNodeConfig);
-    connection.query(dynamicQuery, (err, results) => {
-      if (err) return res.status(500).json({ error: 'Query failed on active node' });
+    connection.query(dynamicQuery, async (err, results) => {
+      if (err) {
+        console.error('Transaction failed, adding to retry queue', err);
+        transactionQueue.push({ query: dynamicQuery }); // Add failed transaction to the queue
+        return res.status(500).json({ error: 'Query failed on active node' });
+      }
       res.json({ transactions: results });
     });
   } catch (err) {
+    console.error('Error executing transaction', err);
     return res.status(500).json({ error: 'Failed to execute query' });
+  }
+});
+
+// Delete Record Route
+app.delete('/delete-record', (req, res) => {
+  const { id } = req.params;
+  
+  // Make sure 'id' is a valid number
+  if (!id || isNaN(id)) {
+    return res.status(400).json({ error: 'Invalid ID' });
+  }
+
+  // Perform the database query
+  db.query('DELETE FROM games WHERE id = ?', [id], (err, result) => {
+    if (err) {
+      console.error('Database error:', err); // Log the error for debugging
+      return res.status(500).json({ error: 'Failed to delete record' });
+    }
+    
+    // If no rows are deleted, handle the case where the ID was not found
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ error: 'Record not found' });
+    }
+
+    res.json({ message: 'Data deleted successfully' });
+  });
+});
+
+// Add data to MYSQL
+app.post('/add-record', (req, res) => {
+  const data = req.body;
+
+  const query = `
+    INSERT INTO games (
+      name, release_date, release_year, price, positive_reviews,
+      negative_reviews, user_score, metacritic_score, average_playtime_forever,
+      average_playtime_2weeks, median_playtime_forever
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+
+  const values = [
+    data.field1, data.field2, data.field3, data.field4, data.field5,
+    data.field6, data.field7, data.field8, data.field9, data.field10, data.field11,
+  ]; 
+  
+  db.query(query, values, (err, result) => {
+    if (err) {
+      console.error('Error inserting data:', err);
+      return res.status(500).send('Failed to add record.');
+    }
+    res.status(200).send('Record added successfully.');
+  });
+});
+
+// Update record endpoint
+app.put('/update-record', async (req, res) => {
+  const data = req.body;
+
+  // Validate required fields
+  if (!data.field1) {
+    return res.status(400).json({ error: 'ID is required for update' });
+  }
+
+  const query = `
+    UPDATE games
+    SET
+      name = ?,
+      release_date = ?,
+      release_year = ?,
+      price = ?,
+      positive_reviews = ?,
+      negative_reviews = ?,
+      user_score = ?,
+      metacritic_score = ?,
+      average_playtime_forever = ?,
+      average_playtime_2weeks = ?,
+      median_playtime_forever = ?
+    WHERE id = ?
+  `;
+
+  const values = [
+    data.field2, data.field3, data.field4, data.field5,
+    data.field6, data.field7, data.field8, data.field9,
+    data.field10, data.field11, data.field12, data.field1, // Ensure the ID is included at the end
+  ];
+
+  try {
+    // Execute query
+    db.query(query, values, (error, results) => {
+      if (error) {
+        console.error('Error updating record:', error);
+        return res.status(500).json({ error: 'Database error' });
+      }
+
+      if (results.affectedRows === 0) {
+        return res.status(404).json({ error: 'Record not found' });
+      }
+
+      res.status(200).json({ message: 'Record updated successfully' });
+    });
+  } catch (err) {
+    console.error('Error:', err);
+    res.status(500).json({ error: 'Internal server error' });
   }
 });
 
