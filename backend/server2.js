@@ -15,27 +15,27 @@ app.use(express.json()); // Parse incoming JSON requests
 
 // Database node configurations for three different MySQL servers
 const dbNodes = {
-  node1: { 
-    host: '127.0.0.1', 
-    port: 3300, 
-    user: 'root', 
-    password: 'erdana2003', 
-    database: 'mco_db' 
+  node1: {
+    host: 'ccscloud.dlsu.edu.ph',
+    port: 20302,
+    user: 'user',
+    password: 'password',
+    database: 'mco_db'
   },
-  node2: { 
-    host: '127.0.0.1', 
-    port: 3306, 
-    user: 'root', 
-    password: 'erdana2003', 
-    database: 'mco_db' 
+  node2: {
+    host: 'ccscloud.dlsu.edu.ph',
+    port: 20312,
+    user: 'user',
+    password: 'password',
+    database: 'mco_db'
   },
-  node3: { 
-    host: '127.0.0.1', 
-    port: 3307, 
-    user: 'root', 
-    password: 'erdana2003', 
-    database: 'mco_db' 
-  },
+  node3: {
+    host: 'ccscloud.dlsu.edu.ph',
+    port: 20322,
+    user: 'user',
+    password: 'password',
+    database: 'mco_db'
+  }
 };
 
 let activeNodeConfig = dbNodes.node1; // Default active node
@@ -452,30 +452,36 @@ app.delete('/delete-record', (req, res) => {
   });
 });
 
-// Add data to MySQL -- double check if it works
-app.post('/add-record', (req, res) => {
+
+app.post('/add-record', async (req, res) => {
   const data = req.body;
 
-  const query = `
-    INSERT INTO games (
-      name, release_date, release_year, price, positive_reviews,
-      negative_reviews, user_score, metacritic_score, average_playtime_forever,
-      average_playtime_2weeks, median_playtime_forever
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+  try {
+    // Fetch the last ID
+    const [rows] = await db.promise().query('SELECT MAX(id) AS lastId FROM games');
+    const nextId = (rows[0].lastId || 0) + 1;
 
-  const values = [
-    data.field1, data.field2, data.field3, data.field4, data.field5,
-    data.field6, data.field7, data.field8, data.field9, data.field10, data.field11,
-  ]; 
-  
-  db.query(query, values, (err, result) => {
-    if (err) {
-      console.error('Error inserting data:', err);
-      return res.status(500).send('Failed to add record.');
-    }
+    // Insert new record with the next ID
+    const query = `
+      INSERT INTO games (
+        id, name, release_date, release_year, price, positive_reviews,
+        negative_reviews, user_score, metacritic_score, average_playtime_forever,
+        average_playtime_2weeks, median_playtime_forever
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+
+    const values = [
+      nextId, data.field1, data.field2, data.field3, data.field4, data.field5,
+      data.field6, data.field7, data.field8, data.field9, data.field10, data.field11,
+    ];
+
+    await db.promise().query(query, values);
     res.status(200).send('Record added successfully.');
-  });
+  } catch (err) {
+    console.error('Error inserting data:', err);
+    res.status(500).send('Failed to add record.');
+  }
 });
+
 
 // Update data in MySQL - doesn't work on my end
 app.put('/update-record', async (req, res) => {
