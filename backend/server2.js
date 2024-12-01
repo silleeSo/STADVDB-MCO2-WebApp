@@ -78,7 +78,7 @@ function createDbConnection(nodeConfig) {
   return connection;
 }
 
-// Retry logic for replication failures (Node 1 or Node 2 to central node and Node 2 or Node 3 replication failure)
+// Retry logic for replication failures (Node 2 or Node 3 to central node and Node 2 or Node 3 replication failure)
 async function retryReplication(transaction, targetNode) {
   const maxRetries = 5;
   let attempt = 0;
@@ -320,7 +320,7 @@ async function processPendingTransactionsForNode(recoveredNodeConfig) {
   }
 }
 
-// Enhanced function to process transaction queue with detailed logs
+// Function to process transaction queue with detailed logs
 async function processTransactionQueueImmediatelyWithLogs() {
   console.log('Starting immediate processing of the transaction queue...');
   console.log(`Queue length: ${transactionQueue.length}`);
@@ -427,7 +427,7 @@ app.post('/query', async (req, res) => {
   }
 });
 
-// Delete Record Route
+// Delete data from MySQL
 app.delete('/delete-record', (req, res) => {
   const { id } = req.params;
   
@@ -452,7 +452,7 @@ app.delete('/delete-record', (req, res) => {
   });
 });
 
-// Add data to MYSQL
+// Add data to MySQL -- double check if it works
 app.post('/add-record', (req, res) => {
   const data = req.body;
 
@@ -477,7 +477,7 @@ app.post('/add-record', (req, res) => {
   });
 });
 
-// Update record endpoint
+// Update data in MySQL - doesn't work on my end
 app.put('/update-record', async (req, res) => {
   const data = req.body;
 
