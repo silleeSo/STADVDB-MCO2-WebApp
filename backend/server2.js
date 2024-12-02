@@ -535,6 +535,26 @@ app.put('/update-record', async (req, res) => {
   }
 });
 
+app.get('/redirect-node', (req, res) => {
+  // Identify nodes that are failing
+  const failingNodes = Object.entries(failedNodes)
+    .filter(([node, isFailed]) => isFailed)
+    .map(([node]) => node); // Get the names of failing nodes
+
+  if (failingNodes.length > 0) {
+    // Respond with a failure message and list of failing nodes
+    return res.status(200).json({
+      status: 'error',
+      message: `Node failure occurred in the following node(s): ${failingNodes.join(', ')}`,
+      failingNodes, // Include the failing nodes in the response
+    });
+  }
+
+  // Respond with a success message if all nodes are operational
+  console.log('All nodes are operational');
+  res.status(200).json({ status: 'success', message: 'All nodes are operational' });
+});
+
 // Start the server and listen on port 5000
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);

@@ -12,3 +12,20 @@ export const executeQuery = async (query) => {
     throw error; // Re-throw the error if necessary
   }
 };
+
+
+export const executeRedirect = async () => {
+  try {
+    const response = await axios.get('http://localhost:5000/redirect-node');
+    if (response.data.status === 'error') {
+      // Display an alert for node failure
+      alert(response.data.message);
+    } else {
+      console.log(response.data.message);
+    }
+    return response.data;
+  } catch (error) {
+    console.error('Error checking node status:', error);
+    throw error;
+  }
+};
