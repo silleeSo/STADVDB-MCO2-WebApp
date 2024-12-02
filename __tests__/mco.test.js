@@ -1,10 +1,10 @@
 const mysql = require('mysql2/promise');
 const request = require('supertest');
-const app = require('../backend/server3'); // Use server3.js for Jest testing
+const app = require('../backend/testApp'); // Use server3.js for Jest testing
 const shell = require('shelljs');
 const { expect } = require('@jest/globals');
 
-// Define configurations for each node
+// Define configurations for each test node
 const dbConfigs = {
   master: {
     host: '127.0.0.1',
