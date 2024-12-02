@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { executeQuery } from '../services/api'; // Import executeQuery function from api.js
 import TableComponent from '../components/TableComponent'; // Import the new TableComponent
 import HomeButton from '../components/HomeButton';
-
+import deleteIcon from '../assets/delete-icon.png';
 const DeletePage = () => {
   const [transactions, setTransactions] = useState([]);
 
@@ -40,12 +40,23 @@ const DeletePage = () => {
   return (
     <div>
       <HomeButton />
-      <h2>Delete or Update Records</h2>
+      
+      <div className="d-flex align-items-center">
+        <h2 className="mb-0 me-2">Delete or Update Records</h2> {/* Add margin-right */}
+        <img
+          src={deleteIcon}
+          alt="Delete Icon"
+          className="mb-3"
+          style={{ width: '50px', height: '50px' }}
+        />
+      </div>
+      
       <p>Select a record then choose to either delete or update the record!</p>
       
       <TableComponent transactions={transactions} onDelete={handleDelete} />
     </div>
   );
+  
 };
 
 export default DeletePage;
