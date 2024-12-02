@@ -1,147 +1,90 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
-import createIcon from '../assets/create-icon.png'; 
-import deleteIcon from '../assets/delete-icon.png'; 
-import searchIcon from '../assets/search-icon.png'; 
-import report1Icon from '../assets/report1.png'; 
-import report2Icon from '../assets/report2.png'; 
-import report3Icon from '../assets/report3.png'; 
-import steamLogo from '../assets/steam-logo.png'; 
-function HomePage() {
+import React, { useState, useEffect } from 'react';
+import Header from '../components/Header';
+import Section from '../components/Section';
+import Card from '../components/Card';
+import createIcon from '../assets/create-icon.png';
+import deleteIcon from '../assets/delete-icon.png';
+import searchIcon from '../assets/search-icon.png';
+import report1Icon from '../assets/report1.png';
+import report2Icon from '../assets/report2.png';
+import report3Icon from '../assets/report3.png';
+import { useLocation } from 'react-router-dom';
+
+const HomePage = () => {
+  /*
+  const [isNode1Down, setIsNode1Down] = useState(false);
+  const [isNode1Active, setIsNode1Active] = useState(false);
+
+
+  useEffect(() => {
+    fetch('/check-node1')
+   .then((response) => {
+     if (!response.ok) {
+       throw new Error(`HTTP error! status: ${response.status}`);
+     }
+     return response.json();
+   })
+   .then((data) => {
+     console.log('Received data:', data);
+     setIsNode1Down(data.isNode1Down);
+     setIsNode1Active(data.isNode1Active);
+   })
+   .catch((error) => {
+     console.error('Error checking Node1 status:', error);
+   });
+
+  }, []);
+
+  const isDeleteButtonDisabled = !isNode1Down || isNode1Active;
+
+  useEffect(() => {
+    console.log('isDeleteButtonDisabled:', isDeleteButtonDisabled);
+  }, [isNode1Down, isNode1Active]);
+
+  useEffect(() => {
+    console.log('isNode1Down:', isNode1Down);
+    console.log('isNode1Active:', isNode1Active);
+  });
+  */
+
+
+  const location = useLocation();
+
+  useEffect(() => {
+    const queryParams = new URLSearchParams(location.search);
+    const errorMessage = queryParams.get('error');
+    
+    if (errorMessage) {
+      alert(errorMessage);
+    }
+  }, [location]);
+
   return (
     <div className="container text-center mt-5">
-      <div className="d-flex justify-content-center align-items-center mb-4">
-        <h1 className="me-3">Welcome to the Steam Games Distributed Database System!</h1>
-        <img 
-          src={steamLogo} 
-          alt="Steam Logo" 
-          style={{
-            width: '50px', 
-            height: '50px'
-          }} 
-        />
-      </div>
+      <Header />
       <p className="mb-5">What would you like to do today?</p>
 
-      <div className="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
-        {/* Add Record */}
-        <div className="col">
-          <Link to="/add" className="text-decoration-none">
-            <div className="card h-100 text-center p-3 text-black" style={{
-              backgroundImage: 'radial-gradient(circle, #4ec7f4, #5ac4f6, #66c1f6, #72bdf6, #7dbaf5, #7cb8f4, #7bb6f3, #7ab4f2, #6bb4f1, #5bb3f1, #46b3ef, #2ab2ed)',
-              backgroundSize: 'cover',
-              position: 'relative' // Set card to relative positioning
-            }}>
-              <img
-                src={createIcon}
-                alt="Create Icon"
-                className="mx-auto mb-3"
-                style={{ width: '50px', height: '50px' }}
-              />
-              <h5 className="card-title">Create</h5>
-            </div>
-          </Link>
-        </div>
+      <Section title="Actions">
+        <Card to="/add" imgSrc={createIcon} title="Create" />
+        <Card
+          to="/delete"
+          imgSrc={deleteIcon}
+          title="Delete or Update"
+          //isDisabled={isDeleteButtonDisabled}
+          onClick={() => alert('Node1 is down or not active. This action is disabled.')}
+        />
+        <Card to="/search" imgSrc={searchIcon} title="Search" />
+      </Section>
 
-
-        {/* Delete or Update */}
-        <div className="col">
-          <Link to="/delete" className="text-decoration-none">
-          <div className="card h-100 text-center p-3 text-black" style={{
-              backgroundImage: 'radial-gradient(circle, #4ec7f4, #5ac4f6, #66c1f6, #72bdf6, #7dbaf5, #7cb8f4, #7bb6f3, #7ab4f2, #6bb4f1, #5bb3f1, #46b3ef, #2ab2ed)',
-              backgroundSize: 'cover'
-            }}>
-              <img
-                src={deleteIcon}
-                alt="Delete Icon"
-                className="mx-auto mb-3"
-                style={{ width: '50px', height: '50px' }}
-              />
-              <h5 className="card-title">Delete or Update</h5>
-            </div>
-          </Link>
-        </div>
-
-        {/* Search */}
-        <div className="col">
-          <Link to="/search" className="text-decoration-none">
-          <div className="card h-100 text-center p-3 text-black" style={{
-              backgroundImage: 'radial-gradient(circle, #4ec7f4, #5ac4f6, #66c1f6, #72bdf6, #7dbaf5, #7cb8f4, #7bb6f3, #7ab4f2, #6bb4f1, #5bb3f1, #46b3ef, #2ab2ed)',
-              backgroundSize: 'cover'
-            }}>
-              <img
-                src={searchIcon}
-                alt="Search Icon"
-                className="mx-auto mb-3"
-                style={{ width: '50px', height: '50px' }}
-              />
-              <h5 className="card-title">Search</h5>
-            </div>
-          </Link>
-        </div>
-      </div>
-
-      {/* Divider Section */}
       <hr className="my-5" />
-      <h2 className="mb-4">Reports</h2>
 
-      <div className="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
-        {/* Top Games by Engagement */}
-        <div className="col">
-          <Link to="/rp1" className="text-decoration-none">
-          <div className="card h-100 text-center p-3 text-black" style={{
-              backgroundImage: 'radial-gradient(circle, #4ec7f4, #5ac4f6, #66c1f6, #72bdf6, #7dbaf5, #7cb8f4, #7bb6f3, #7ab4f2, #6bb4f1, #5bb3f1, #46b3ef, #2ab2ed)',
-              backgroundSize: 'cover'
-            }}>
-              <img
-                src={report1Icon}
-                alt="Report 1 Icon"
-                className="mx-auto mb-3"
-                style={{ width: '50px', height: '50px' }}
-              />
-              <h5 className="card-title">Top Games by Engagement</h5>
-            </div>
-          </Link>
-        </div>
-
-        {/* Revenue and Value Analysis */}
-        <div className="col">
-          <Link to="/rp2" className="text-decoration-none">
-          <div className="card h-100 text-center p-3 text-black" style={{
-              backgroundImage: 'radial-gradient(circle, #4ec7f4, #5ac4f6, #66c1f6, #72bdf6, #7dbaf5, #7cb8f4, #7bb6f3, #7ab4f2, #6bb4f1, #5bb3f1, #46b3ef, #2ab2ed)',
-              backgroundSize: 'cover'
-            }}>
-              <img
-                src={report2Icon}
-                alt="Report 2 Icon"
-                className="mx-auto mb-3"
-                style={{ width: '50px', height: '50px' }}
-              />
-              <h5 className="card-title">Revenue and Value Analysis</h5>
-            </div>
-          </Link>
-        </div>
-
-        {/* Reviews and Ratings Correlation */}
-        <div className="col">
-          <Link to="/rp3" className="text-decoration-none">
-          <div className="card h-100 text-center p-3 text-black" style={{
-              backgroundImage: 'radial-gradient(circle, #4ec7f4, #5ac4f6, #66c1f6, #72bdf6, #7dbaf5, #7cb8f4, #7bb6f3, #7ab4f2, #6bb4f1, #5bb3f1, #46b3ef, #2ab2ed)',
-              backgroundSize: 'cover'
-            }}>
-              <img
-                src={report3Icon}
-                alt="Report 3 Icon"
-                className="mx-auto mb-3"
-                style={{ width: '50px', height: '50px' }}
-              />
-              <h5 className="card-title">Reviews and Ratings Correlation</h5>
-            </div>
-          </Link>
-        </div>
-      </div>
+      <Section title="Reports">
+        <Card to="/rp1" imgSrc={report1Icon} title="Top Games by Engagement" />
+        <Card to="/rp2" imgSrc={report2Icon} title="Revenue and Value Analysis" />
+        <Card to="/rp3" imgSrc={report3Icon} title="Reviews and Ratings Correlation" />
+      </Section>
     </div>
   );
-}
+};
 
 export default HomePage;
