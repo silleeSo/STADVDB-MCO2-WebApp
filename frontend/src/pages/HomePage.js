@@ -8,16 +8,33 @@ import searchIcon from '../assets/search-icon.png';
 import report1Icon from '../assets/report1.png';
 import report2Icon from '../assets/report2.png';
 import report3Icon from '../assets/report3.png';
-import { useLocation } from 'react-router-dom';
 import { executeRedirect, checkNode1 } from '../services/api';
 
 const HomePage = () => {
+  const [isDeleteButtonDisabled, setIsDeleteButtonDisabled] = useState(false);
 
   useEffect(() => {
     executeRedirect(); // Execute redirect functionality (if needed)
-    //checkNodeStatus(); // Check Node1 status when the component mounts
-  }, []);
 
+    // Use an async function to handle the API call
+    const checkNodeStatus = async () => {
+      try {
+        const resp = await checkNode1();
+        if (resp.status === 'error') {
+          //alert('CRUD Operations are unavailable.');
+          setIsDeleteButtonDisabled(true);
+        } else {
+          setIsDeleteButtonDisabled(false);
+        }
+      } catch (error) {
+        setIsDeleteButtonDisabled(false);
+        console.error('Error checking node status:', error);
+        alert('An error occurred while checking node status.');
+      }
+    };
+
+    checkNodeStatus();
+  }, []);
 
   return (
     <div className="container text-center mt-5">
@@ -25,15 +42,27 @@ const HomePage = () => {
       <p className="mb-5">What would you like to do today?</p>
 
       <Section title="Actions">
-        <Card to="/add" imgSrc={createIcon} title="Create" />
+        <Card
+          to="/add"
+          imgSrc={createIcon}
+          title="Create"
+          isDisabled={isDeleteButtonDisabled}
+          onClick={() => alert('Node1 is down or not active. This action is disabled.')}
+        />
         <Card
           to="/delete"
           imgSrc={deleteIcon}
           title="Delete or Update"
-          //isDisabled={isDeleteButtonDisabled}
+          isDisabled={isDeleteButtonDisabled}
           onClick={() => alert('Node1 is down or not active. This action is disabled.')}
         />
-        <Card to="/search" imgSrc={searchIcon} title="Search" />
+        <Card
+          to="/search"
+          imgSrc={searchIcon}
+          title="Search"
+          isDisabled={isDeleteButtonDisabled}
+          onClick={() => alert('Node1 is down or not active. This action is disabled.')}
+        />
       </Section>
 
       <hr className="my-5" />

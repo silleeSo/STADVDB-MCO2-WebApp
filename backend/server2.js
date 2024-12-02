@@ -555,6 +555,29 @@ app.get('/redirect-node', (req, res) => {
   res.status(200).json({ status: 'success', message: 'All nodes are operational' });
 });
 
+app.get('/check-node1', (req, res) => {
+  // Your logic to check if Node1 is down or up
+  //const node1Status = checkNode1Status(); // Assume this function checks the node status
+  const isNode1Down = 'node1' in failedNodes ? true : false;
+  const isNode1Active = activeNodeConfig === dbNodes['node1'];
+
+  // Log the status and message to the console
+  console.log('isNode1Down:', isNode1Down);
+  console.log('isNode1Active:', isNode1Active);
+
+  if (isNode1Down || !isNode1Active) {
+    res.status(200).json({
+      status: 'error',
+      message: 'CRUD Operations are unavailable due to Down Central Node',
+    });
+  } else {
+    res.status(200).json({
+      status: 'success',
+      message: 'Node1 is operational',
+    });
+  }
+});
+
 // Start the server and listen on port 5000
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);

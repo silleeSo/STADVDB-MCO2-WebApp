@@ -29,3 +29,20 @@ export const executeRedirect = async () => {
     throw error;
   }
 };
+
+export const checkNode1 = async () => {
+  try {
+    const response = await axios.get('http://localhost:5000/check-node1');
+    
+    if (response.data.status === 'error') {
+      // Instead of alerting here, just return the error response
+      return { status: 'error', message: response.data.message };
+    } else {
+      console.log(response.data.message);
+      return { status: 'success', message: response.data.message };
+    }
+  } catch (error) {
+    console.error('Error checking node status:', error);
+    return { status: 'error', message: 'An error occurred while checking node status.' };
+  }
+};
