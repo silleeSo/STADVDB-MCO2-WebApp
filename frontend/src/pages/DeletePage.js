@@ -18,8 +18,10 @@ const DeletePage = () => {
     fetchData();
   }, []); // Empty dependency array ensures this runs only once when the component mounts
 
+  /*
   const handleDelete = async (transaction) => {
-    const deleteQuery = `DELETE FROM games WHERE id = ${transaction.id}`;
+    //const deleteQuery = `DELETE FROM games WHERE id = ${transaction.id}`;
+    //const response = await executeQuery(deleteQuery);
     const response = await executeQuery(deleteQuery);
 
     if (response.success) {
@@ -35,7 +37,37 @@ const DeletePage = () => {
     }
 
     await fetchData();
+  };*/
+
+
+  const handleDelete = async (transaction) => {
+    const id = transaction.id;
+  
+    try {
+      const response = await fetch('http://localhost:5000/delete-record', {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ id }), // Send the 'id' in the request body
+      });
+  
+      const data = await response.json();
+  
+      if (response.ok) {
+        alert(`Record with ID ${id} has been deleted.`);
+      } else {
+        alert(`Failed to delete record: ${data.error || response.statusText}`);
+      }
+    } catch (error) {
+      console.error('Error during deletion:', error);
+      alert('An error occurred while deleting the record.');
+    }
+
+    await fetchData();
   };
+  
+  
 
   return (
     <div>

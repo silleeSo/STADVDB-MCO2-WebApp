@@ -429,21 +429,18 @@ app.post('/query', async (req, res) => {
 
 // Delete data from MySQL
 app.delete('/delete-record', (req, res) => {
-  const { id } = req.params;
-  
-  // Make sure 'id' is a valid number
+  const { id } = req.body; // Expecting 'id' from the request body
+
   if (!id || isNaN(id)) {
     return res.status(400).json({ error: 'Invalid ID' });
   }
 
-  // Perform the database query
   db.query('DELETE FROM games WHERE id = ?', [id], (err, result) => {
     if (err) {
-      console.error('Database error:', err); // Log the error for debugging
+      console.error('Database error:', err);
       return res.status(500).json({ error: 'Failed to delete record' });
     }
-    
-    // If no rows are deleted, handle the case where the ID was not found
+
     if (result.affectedRows === 0) {
       return res.status(404).json({ error: 'Record not found' });
     }
@@ -451,6 +448,7 @@ app.delete('/delete-record', (req, res) => {
     res.json({ message: 'Data deleted successfully' });
   });
 });
+
 
 
 app.post('/add-record', async (req, res) => {

@@ -66,14 +66,16 @@ const TableComponent = ({ transactions, onDelete, onUpdate }) => {
                 </button>
                 <p></p>
                 <button
-                  className="btn btn-danger btn-sm"
-                  onClick={(e) => {
-                    e.stopPropagation(); // Prevent triggering row selection
-                    onDelete(transaction);
-                  }}
-                >
-                  Delete
-                </button>
+  className="btn btn-danger btn-sm"
+  onClick={(e) => {
+    e.stopPropagation(); // Prevent triggering row selection
+    console.log('Delete button clicked for transaction:', transaction);
+    onDelete(transaction);
+  }}
+>
+  Delete
+</button>
+  
                 <p></p>
               </td>
             </tr>
